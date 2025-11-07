@@ -1,0 +1,7 @@
+{
+  "name": "randIT",
+  "description": "A mobile-first web app that helps users quickly decide where to eat by combining real-time location data, customizable filters, and a random selection mechanic.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
