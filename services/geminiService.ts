@@ -1,32 +1,32 @@
 
 import { GoogleGenAI } from "@google/genai";
-import type { Filters, Coordinates, Restaurant } from "../types";
+import type { Preferences, Coordinates, Restaurant } from "../types";
 import { parseGeminiResponse } from "../utils";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
-function buildPrompt(coordinates: Coordinates, cuisines: string[], filters: Filters): string {
+function buildPrompt(coordinates: Coordinates, preferences: Preferences): string {
     let prompt = `Based on my current location (latitude: ${coordinates.latitude}, longitude: ${coordinates.longitude}), find restaurants nearby.`;
     
-    prompt += ` The restaurants should be within a ${filters.distance} mile radius.`;
+    prompt += ` The restaurants should be within a ${preferences.distance} mile radius.`;
     
-    if (cuisines.length > 0) {
-        prompt += ` I'm interested in the following cuisines: ${cuisines.join(', ')}.`;
+    if (preferences.cuisines.length > 0) {
+        prompt += ` I'm interested in the following cuisines: ${preferences.cuisines.join(', ')}.`;
     }
 
-    if (filters.price.length > 0) {
-        const priceSymbols = filters.price.map(p => '$'.repeat(p)).join(', ');
+    if (preferences.price.length > 0) {
+        const priceSymbols = preferences.price.map(p => '$'.repeat(p)).join(', ');
         prompt += ` The price range should be: ${priceSymbols}.`;
     }
 
-    prompt += ` The minimum customer rating should be ${filters.rating} out of 5 stars.`;
+    prompt += ` The minimum customer rating should be ${preferences.rating} out of 5 stars.`;
 
-    if (filters.payment.length > 0) {
-        prompt += ` They must accept the following payment types: ${filters.payment.join(', ')}.`;
+    if (preferences.payment.length > 0) {
+        prompt += ` They must accept the following payment types: ${preferences.payment.join(', ')}.`;
     }
 
-    if (filters.dietary.length > 0) {
-        prompt += ` It's important that they offer these dietary options: ${filters.dietary.join(', ')}.`;
+    if (preferences.dietary.length > 0) {
+        prompt += ` It's important that they offer these dietary options: ${preferences.dietary.join(', ')}.`;
     }
 
     prompt += ` Please return a list of up to 15 matching restaurants.`;
@@ -38,11 +38,10 @@ function buildPrompt(coordinates: Coordinates, cuisines: string[], filters: Filt
 
 export const findRestaurants = async (
     coordinates: Coordinates,
-    cuisines: string[],
-    filters: Filters
+    preferences: Preferences
 ): Promise<Restaurant[]> => {
     try {
-        const prompt = buildPrompt(coordinates, cuisines, filters);
+        const prompt = buildPrompt(coordinates, preferences);
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",

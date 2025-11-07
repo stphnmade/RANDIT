@@ -1,14 +1,9 @@
 
-export enum Page {
-  Home,
-  Cuisine,
-  Filters,
-  Loading,
-  Result,
-  EndScreen,
-}
+export type Tab = 'preferences' | 'randit' | 'profile';
+export type Theme = 'light' | 'dark' | 'system';
 
-export interface Filters {
+export interface Preferences {
+  cuisines: string[];
   distance: number; // in miles
   price: number[]; // e.g., [1, 2, 3, 4] for $, $$, $$$
   rating: number; // min rating

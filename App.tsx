@@ -1,154 +1,191 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
-import type { Filters, Restaurant } from './types';
-import { Page } from './types';
-import { CUISINE_OPTIONS } from './constants';
+import type { Preferences, Restaurant, Tab, Theme } from './types';
 import { getLocation } from './utils';
 import { findRestaurants } from './services/geminiService';
 
-import HomeScreen from './components/HomeScreen';
-import CuisineScreen from './components/CuisineScreen';
-import FilterScreen from './components/FilterScreen';
+import BottomNav from './components/BottomNav';
+import PreferencesScreen from './components/PreferencesScreen';
+import ProfileScreen from './components/ProfileScreen';
 import LoadingScreen from './components/LoadingScreen';
 import ResultScreen from './components/ResultScreen';
 import EndScreen from './components/EndScreen';
+import { ShuffleIcon } from './components/Icons';
+
+type RandItState = 'idle' | 'loading' | 'result' | 'no-results' | 'error';
 
 const App: React.FC = () => {
-    const [page, setPage] = useState<Page>(Page.Home);
-    const [error, setError] = useState<string | null>(null);
-    const [loadingMessage, setLoadingMessage] = useState('');
+    const [theme, setTheme] = useState<Theme>('system');
+    const [activeTab, setActiveTab] = useState<Tab>('randit');
     
-    const initialFilters: Filters = {
+    const initialPreferences: Preferences = {
+        cuisines: [],
         distance: 5,
         price: [],
         rating: 3.5,
         payment: [],
         dietary: [],
     };
+    const [preferences, setPreferences] = useState<Preferences>(initialPreferences);
 
-    const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
-    const [filters, setFilters] = useState<Filters>(initialFilters);
-    
+    const [randItState, setRandItState] = useState<RandItState>('idle');
+    const [error, setError] = useState<string | null>(null);
     const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]);
     const [availableRestaurants, setAvailableRestaurants] = useState<Restaurant[]>([]);
     const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
 
-    const resetState = useCallback(() => {
-        setPage(Page.Home);
-        setError(null);
-        setSelectedCuisines([]);
-        setFilters(initialFilters);
-        setAllRestaurants([]);
-        setAvailableRestaurants([]);
-        setSelectedRestaurant(null);
+    // Load state from localStorage on initial render
+    useEffect(() => {
+        try {
+            const savedTheme = localStorage.getItem('randit-theme') as Theme | null;
+            if (savedTheme) setTheme(savedTheme);
+
+            const savedPrefs = localStorage.getItem('randit-preferences');
+            if (savedPrefs) setPreferences(JSON.parse(savedPrefs));
+        } catch (e) {
+            console.error("Failed to load from localStorage", e);
+        }
     }, []);
 
-    const handleCuisineToggle = (cuisine: string) => {
-        setSelectedCuisines(prev => 
-            prev.includes(cuisine) ? prev.filter(c => c !== cuisine) : [...prev, cuisine]
-        );
-    };
+    // Save theme to localStorage
+    useEffect(() => {
+        try {
+            localStorage.setItem('randit-theme', theme);
+        } catch (e) {
+            console.error("Failed to save theme to localStorage", e);
+        }
+    }, [theme]);
 
-    const handleFilterChange = <K extends keyof Filters>(key: K, value: Filters[K]) => {
-        setFilters(prev => ({ ...prev, [key]: value }));
-    };
+    // Apply theme to document
+    useEffect(() => {
+        const root = window.document.documentElement;
+        const isDark =
+            theme === 'dark' ||
+            (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        
+        root.classList.toggle('dark', isDark);
+        document.body.classList.toggle('dark', isDark); // Also toggle on body for compatibility
+    }, [theme]);
 
+    const handleSavePreferences = (newPreferences: Preferences) => {
+        setPreferences(newPreferences);
+        try {
+            localStorage.setItem('randit-preferences', JSON.stringify(newPreferences));
+        } catch (e) {
+            console.error("Failed to save preferences to localStorage", e);
+        }
+        setActiveTab('randit');
+    };
+    
     const pickRandomRestaurant = useCallback((restaurants: Restaurant[]) => {
-        setLoadingMessage('Picking your spot...');
-        setPage(Page.Loading);
-
-        setTimeout(() => {
-            if (restaurants.length > 0) {
-                const randomIndex = Math.floor(Math.random() * restaurants.length);
-                const choice = restaurants[randomIndex];
-                setSelectedRestaurant(choice);
-                setAvailableRestaurants(restaurants);
-                setPage(Page.Result);
-            } else {
-                setPage(Page.EndScreen); // This case leads to Exhausted screen
-            }
-        }, 3000); // Simulate spinning
+        if (restaurants.length > 0) {
+            const randomIndex = Math.floor(Math.random() * restaurants.length);
+            const choice = restaurants[randomIndex];
+            setSelectedRestaurant(choice);
+            setAvailableRestaurants(restaurants);
+            setRandItState('result');
+        } else {
+            setRandItState('no-results');
+        }
     }, []);
 
     const handleFindPlaces = useCallback(async () => {
         setError(null);
-        setLoadingMessage('Getting your location...');
-        setPage(Page.Loading);
+        setRandItState('loading');
         try {
             const coordinates = await getLocation();
-            setLoadingMessage('Finding restaurants...');
+            const results = await findRestaurants(coordinates, preferences);
             
-            const results = await findRestaurants(coordinates, selectedCuisines, filters);
-            
-            if (results.length === 0) {
-                setPage(Page.EndScreen); // This case leads to No Results screen
-                return;
-            }
-
             setAllRestaurants(results);
-            pickRandomRestaurant(results);
+            
+            // Simulate polling animation
+            setTimeout(() => {
+                if (results.length === 0) {
+                    setRandItState('no-results');
+                    return;
+                }
+                pickRandomRestaurant(results);
+            }, 4000);
 
         } catch (err: any) {
             setError(err.message || 'An unknown error occurred.');
-            setPage(Page.EndScreen); // Error leads to End Screen as well
+            setRandItState('error');
         }
-    }, [selectedCuisines, filters, pickRandomRestaurant]);
+    }, [preferences, pickRandomRestaurant]);
     
     const handleReroll = useCallback(() => {
         const remaining = availableRestaurants.filter(r => r.name !== selectedRestaurant?.name);
         if (remaining.length > 0) {
-            pickRandomRestaurant(remaining);
+            setRandItState('loading');
+            setTimeout(() => pickRandomRestaurant(remaining), 3000);
         } else {
-            setPage(Page.EndScreen);
+            setRandItState('no-results');
         }
     }, [availableRestaurants, selectedRestaurant, pickRandomRestaurant]);
+    
+    const resetRandIt = () => {
+        setRandItState('idle');
+        setError(null);
+        setAllRestaurants([]);
+        setAvailableRestaurants([]);
+        setSelectedRestaurant(null);
+    };
 
-    const renderContent = () => {
-        switch (page) {
-            case Page.Home:
-                return <HomeScreen onStart={() => setPage(Page.Cuisine)} />;
-            case Page.Cuisine:
-                return <CuisineScreen 
-                    selectedCuisines={selectedCuisines}
-                    onCuisineToggle={handleCuisineToggle}
-                    onNext={() => setPage(Page.Filters)}
-                    onSelectAll={() => setSelectedCuisines(CUISINE_OPTIONS)}
-                    onClearAll={() => setSelectedCuisines([])}
-                />;
-            case Page.Filters:
-                return <FilterScreen 
-                    filters={filters}
-                    onFilterChange={handleFilterChange}
-                    onFind={handleFindPlaces}
-                    onBack={() => setPage(Page.Cuisine)}
-                />;
-            case Page.Loading:
-                return <LoadingScreen message={loadingMessage} />;
-            case Page.Result:
+    const renderRandItContent = () => {
+        switch (randItState) {
+            case 'idle':
+                return (
+                    <div className="flex flex-col items-center justify-center h-full text-center p-8 text-gray-800 dark:text-white">
+                        <h1 className="text-5xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-teal-500 dark:from-purple-400 dark:to-teal-300">
+                          randIT
+                        </h1>
+                        <p className="text-lg text-gray-600 dark:text-gray-300 mb-12">Ready to roll?</p>
+                        <button onClick={handleFindPlaces} className="w-48 h-16 flex items-center justify-center text-xl font-bold text-white bg-gradient-to-r from-purple-500 to-teal-500 rounded-2xl shadow-lg transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300">
+                           <ShuffleIcon className="w-6 h-6 mr-2" /> Go!
+                        </button>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-8">
+                            Tap 'Go!' to find a random spot using your saved preferences.
+                        </p>
+                    </div>
+                );
+            case 'loading':
+                return <LoadingScreen restaurants={allRestaurants} messages={['Getting your location...', 'Scanning local eats...', 'Weighing your options...', 'Almost there...']} />;
+            case 'result':
                 return selectedRestaurant && <ResultScreen 
                     restaurant={selectedRestaurant} 
                     onReroll={handleReroll} 
-                    onStartOver={resetState}
+                    onNewSearch={resetRandIt}
                 />;
-            case Page.EndScreen:
-                if (error) {
-                    return <EndScreen title="Oops!" message={error} actions={[{label: 'Try Again', onClick: () => setPage(Page.Filters), primary: true}, {label: 'Start Over', onClick: resetState}]} />;
-                }
+            case 'no-results':
                 if (allRestaurants.length === 0) {
-                     return <EndScreen title="No Matches Found" message="We couldn't find any spots with your current filters. Try adjusting them." actions={[{label: 'Adjust Filters', onClick: () => setPage(Page.Filters), primary: true}, {label: 'Start Over', onClick: resetState}]} />;
+                     return <EndScreen title="No Matches Found" message="We couldn't find any spots with your current filters. Try adjusting them." actions={[{label: 'Adjust Preferences', onClick: () => setActiveTab('preferences'), primary: true}, {label: 'Try Again', onClick: handleFindPlaces}]} />;
                 }
-                return <EndScreen title="That's All, Folks!" message="You've seen all the options for your search. Time to pick one or start a new search!" actions={[{label: 'Adjust Filters', onClick: () => setPage(Page.Filters), primary: true}, {label: 'Start Over', onClick: resetState}]} />;
+                return <EndScreen title="That's All, Folks!" message="You've seen all the options for your search. Time to pick one or start a new search!" actions={[{label: 'Adjust Preferences', onClick: () => setActiveTab('preferences'), primary: true}, {label: 'New Search', onClick: resetRandIt}]} />;
+            case 'error':
+                 return <EndScreen title="Oops!" message={error || 'Something went wrong.'} actions={[{label: 'Try Again', onClick: handleFindPlaces, primary: true}, {label: 'New Search', onClick: resetRandIt}]} />;
+        }
+    };
+
+    const renderMainContent = () => {
+        switch (activeTab) {
+            case 'preferences':
+                return <PreferencesScreen currentPreferences={preferences} onSave={handleSavePreferences} />;
+            case 'profile':
+                return <ProfileScreen currentTheme={theme} onThemeChange={setTheme} />;
+            case 'randit':
+                return renderRandItContent();
             default:
-                return <HomeScreen onStart={() => setPage(Page.Cuisine)} />;
+                return null;
         }
     };
     
     return (
-        <main className="h-screen w-screen bg-gray-900 font-sans">
-          <div className="max-w-md mx-auto h-full bg-gray-800 shadow-2xl overflow-hidden">
-            <div className="h-full overflow-y-auto">
-              {renderContent()}
+        <main className="h-screen w-screen bg-slate-50 dark:bg-[#0F0F0F] font-sans">
+          <div className="relative max-w-md mx-auto h-full bg-slate-50 dark:bg-gray-900 shadow-2xl overflow-hidden">
+            <div className="h-full overflow-y-auto pb-16">
+              {renderMainContent()}
             </div>
+            <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
           </div>
         </main>
     );

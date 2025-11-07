@@ -1,11 +1,11 @@
-
 import React from 'react';
-import type { Filters } from '../types';
+// Fix: The 'Filters' type does not exist. Using 'Preferences' instead as it matches the expected structure.
+import type { Preferences } from '../types';
 import { PAYMENT_OPTIONS, DIETARY_OPTIONS } from '../constants';
 
 interface FilterScreenProps {
-  filters: Filters;
-  onFilterChange: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
+  filters: Preferences;
+  onFilterChange: <K extends keyof Preferences>(key: K, value: Preferences[K]) => void;
   onFind: () => void;
   onBack: () => void;
 }
