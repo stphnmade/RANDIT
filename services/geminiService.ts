@@ -1,12 +1,25 @@
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import type { Preferences, Coordinates, Restaurant } from "../types";
-import { parseGeminiResponse } from "../utils";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
+// Define the schema for the restaurant object for a structured JSON response.
+const restaurantSchema = {
+    type: Type.OBJECT,
+    properties: {
+        name: { type: Type.STRING, description: "The name of the restaurant." },
+        rating: { type: Type.NUMBER, description: "The customer rating out of 5." },
+        price_level: { type: Type.NUMBER, description: "The price level from 1 to 4." },
+        address: { type: Type.STRING, description: "The full street address." },
+        cuisine: { type: Type.ARRAY, items: { type: Type.STRING }, description: "An array of cuisine types." },
+        maps_url: { type: Type.STRING, description: "A valid Google Maps URL for directions." },
+        website_url: { type: Type.STRING, description: "The restaurant's website URL (optional)." },
+    }
+};
+
 function buildPrompt(coordinates: Coordinates, preferences: Preferences): string {
-    let prompt = `Based on my current location (latitude: ${coordinates.latitude}, longitude: ${coordinates.longitude}), find restaurants nearby.`;
+    let prompt = `Find restaurants near latitude ${coordinates.latitude} and longitude ${coordinates.longitude}.`;
     
     prompt += ` The restaurants should be within a ${preferences.distance} mile radius.`;
     
@@ -30,8 +43,6 @@ function buildPrompt(coordinates: Coordinates, preferences: Preferences): string
     }
 
     prompt += ` Please return a list of up to 15 matching restaurants.`;
-    prompt += ` The response MUST be a JSON array string inside a markdown code block. Do not include any text outside the code block.`;
-    prompt += ` Each object in the array should represent a restaurant and have these exact keys: "name" (string), "rating" (number), "price_level" (number, 1-4), "address" (string), "cuisine" (array of strings), "maps_url" (string, a valid Google Maps URL for directions), and "website_url" (string, optional).`;
 
     return prompt;
 }
@@ -43,19 +54,16 @@ export const findRestaurants = async (
     try {
         const prompt = buildPrompt(coordinates, preferences);
 
+        // Fix: Use responseSchema to ensure a structured JSON output, which is more reliable than parsing from a natural language response.
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
-                tools: [{googleMaps: {}}],
-                toolConfig: {
-                    retrievalConfig: {
-                        latLng: {
-                          latitude: coordinates.latitude,
-                          longitude: coordinates.longitude
-                        }
-                    }
-                }
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.ARRAY,
+                    items: restaurantSchema,
+                },
             }
         });
         
@@ -64,8 +72,10 @@ export const findRestaurants = async (
             console.error("Empty response from Gemini");
             return [];
         }
-
-        return parseGeminiResponse(responseText);
+        
+        // With responseSchema, the response text is a guaranteed JSON string.
+        const restaurants = JSON.parse(responseText);
+        return Array.isArray(restaurants) ? restaurants as Restaurant[] : [];
 
     } catch (error) {
         console.error("Error fetching restaurants from Gemini:", error);

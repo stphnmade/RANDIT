@@ -1,51 +1,152 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { Restaurant } from '../types';
+import { PizzaIcon, BurgerIcon, SushiIcon, TacoIcon, NoodlesIcon, FishIcon, CurryIcon, SaladIcon, DonutIcon } from './Icons';
 
 interface LoadingScreenProps {
   restaurants: Restaurant[];
   messages: string[];
 }
 
+const ProgressBar = ({ progress }: { progress: number }) => (
+    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+        <div 
+            className="bg-gradient-to-r from-purple-500 to-teal-500 h-2.5 rounded-full transition-all duration-300 ease-linear"
+            style={{ width: `${progress}%` }}
+        ></div>
+    </div>
+);
+
+const FoodIconGrid: React.FC = () => {
+    const icons = useMemo(() => [
+        PizzaIcon, BurgerIcon, SushiIcon, 
+        TacoIcon, NoodlesIcon, FishIcon, 
+        CurryIcon, SaladIcon, DonutIcon
+    ], []);
+
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setActiveIndex(Math.floor(Math.random() * icons.length));
+        }, 300);
+        return () => clearInterval(interval);
+    }, [icons.length]);
+
+    return (
+        <div className="grid grid-cols-3 gap-4 w-48 h-48">
+            {icons.map((Icon, index) => (
+                <div 
+                    key={index} 
+                    className={`flex items-center justify-center p-2 rounded-lg transition-all duration-300 ${
+                        activeIndex === index 
+                        ? 'bg-teal-400/20 text-teal-300 scale-110' 
+                        : 'bg-gray-700/50 text-gray-500'
+                    }`}
+                >
+                    <Icon className="w-8 h-8" />
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const SlotReel: React.FC<{ name: string }> = ({ name }) => {
+    return (
+        <div className="h-20 w-full overflow-hidden p-4 text-center bg-gray-800/50 rounded-lg backdrop-blur-sm flex items-center justify-center">
+             <div 
+                key={name}
+                className="text-2xl font-bold truncate text-white animate-slot-spin-in"
+             >
+                {name || '...'}
+            </div>
+        </div>
+    );
+};
+
 const LoadingScreen: React.FC<LoadingScreenProps> = ({ restaurants, messages }) => {
   const [displayedName, setDisplayedName] = useState('');
-  const [message, setMessage] = useState(messages[0] || 'Finding restaurants...');
+  const [message, setMessage] = useState(messages[0] || 'Getting your location...');
+  const [progress, setProgress] = useState(0);
 
+  const hasRestaurants = restaurants.length > 0;
+
+  // Effect for cycling restaurant names
   useEffect(() => {
     let nameInterval: number;
-    if (restaurants.length > 0) {
+    if (hasRestaurants) {
       setDisplayedName(restaurants[0].name);
       let i = 0;
       nameInterval = window.setInterval(() => {
+        if (restaurants.length === 0) return;
         i = (i + 1) % restaurants.length;
         setDisplayedName(restaurants[i].name);
-      }, 150);
+      }, 250);
     }
     return () => clearInterval(nameInterval);
-  }, [restaurants]);
+  }, [hasRestaurants, restaurants]);
 
+  // Effect for cycling messages and updating progress bar
   useEffect(() => {
-    let messageInterval: number;
-    if (messages.length > 1) {
-        let i = 0;
-        messageInterval = window.setInterval(() => {
-            i = (i + 1) % messages.length;
-            setMessage(messages[i]);
-        }, 1500);
-    }
-    return () => clearInterval(messageInterval);
-  }, [messages]);
+    if (hasRestaurants) {
+        // Start progress bar animation
+        const startTime = Date.now();
+        const duration = 4000; // Corresponds to setTimeout in App.tsx
+        let animationFrameId: number;
 
+        const frame = () => {
+            const elapsedTime = Date.now() - startTime;
+            const newProgress = Math.min(100, (elapsedTime / duration) * 100);
+            setProgress(newProgress);
+            if (newProgress < 100) {
+                animationFrameId = requestAnimationFrame(frame);
+            }
+        };
+        animationFrameId = requestAnimationFrame(frame);
+
+        // Start message cycling
+        let messageInterval: number;
+        let i = 0;
+        const pollingMessages = messages.slice(1);
+        if (pollingMessages.length > 0) {
+            setMessage(pollingMessages[0]);
+             messageInterval = window.setInterval(() => {
+                i = (i + 1) % pollingMessages.length;
+                setMessage(pollingMessages[i]);
+            }, 1500);
+        } else {
+            setMessage('Picking a spot...');
+        }
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            if(messageInterval) clearInterval(messageInterval);
+        }
+    } else {
+        // Reset state when there are no restaurants (e.g., on new search)
+        setProgress(0);
+        setDisplayedName('');
+        setMessage(messages[0] || 'Getting your location...');
+    }
+  }, [hasRestaurants, messages]);
+  
+  // Initial loading state (before restaurants are fetched)
+  if (!hasRestaurants) {
+    return (
+        <div className="flex flex-col items-center justify-center h-full text-center p-4 text-white">
+            <FoodIconGrid />
+            <h2 className="text-xl font-semibold animate-pulse mt-8">{message}</h2>
+        </div>
+    );
+  }
+
+  // Polling state (after restaurants are fetched)
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center p-4 text-gray-200 dark:text-white">
-      <div className="relative w-48 h-48 flex items-center justify-center mb-8">
-          <div className="absolute w-full h-full border-4 border-teal-400 dark:border-[#55EFC4] rounded-full animate-spin" style={{ animationDuration: '3s' }}></div>
-          <div className="absolute w-3/4 h-3/4 border-4 border-purple-400 dark:border-[#A29BFE] rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '2s' }}></div>
-          <div className="w-2/3 p-2 text-center truncate font-bold text-lg bg-gray-100/10 dark:bg-gray-800/50 rounded-lg backdrop-blur-sm">
-            {displayedName || '...'}
-          </div>
+    <div className="flex flex-col items-center justify-center h-full text-center p-8 text-white">
+      <div className="w-full max-w-sm space-y-6">
+        <SlotReel name={displayedName} />
+        <ProgressBar progress={progress} />
+        <h2 className="text-xl font-semibold">{message}</h2>
       </div>
-      <h2 className="text-xl font-semibold animate-pulse">{message}</h2>
     </div>
   );
 };

@@ -20,6 +20,19 @@
     body {
       transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
     }
+    @keyframes slot-spin-in {
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    .animate-slot-spin-in {
+      animation: slot-spin-in 0.2s ease-out forwards;
+    }
   </style>
 </head>
   <body class="dark">
