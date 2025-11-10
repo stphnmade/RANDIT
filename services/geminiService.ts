@@ -25,6 +25,9 @@ function buildPrompt(coordinates: Coordinates, preferences: Preferences): string
     
     if (preferences.cuisines.length > 0) {
         prompt += ` I'm interested in the following cuisines: ${preferences.cuisines.join(', ')}.`;
+        if (preferences.cuisines.length > 1) {
+            prompt += ` Please provide a balanced and diverse mix of options from these cuisines.`;
+        }
     }
 
     if (preferences.price.length > 0) {
@@ -42,7 +45,7 @@ function buildPrompt(coordinates: Coordinates, preferences: Preferences): string
         prompt += ` It's important that they offer these dietary options: ${preferences.dietary.join(', ')}.`;
     }
 
-    prompt += ` Please return a list of up to 15 matching restaurants.`;
+    prompt += ` Please return a list of up to 15 matching restaurants. Aim for variety in your suggestions.`;
 
     return prompt;
 }
@@ -54,7 +57,9 @@ export const findRestaurants = async (
     try {
         const prompt = buildPrompt(coordinates, preferences);
 
-        // Fix: Use responseSchema to ensure a structured JSON output, which is more reliable than parsing from a natural language response.
+        // Generate a random seed to ensure result diversity on subsequent searches
+        const seed = Math.floor(Math.random() * 1000000);
+
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
@@ -64,6 +69,7 @@ export const findRestaurants = async (
                     type: Type.ARRAY,
                     items: restaurantSchema,
                 },
+                seed: seed,
             }
         });
         
@@ -73,7 +79,6 @@ export const findRestaurants = async (
             return [];
         }
         
-        // With responseSchema, the response text is a guaranteed JSON string.
         const restaurants = JSON.parse(responseText);
         return Array.isArray(restaurants) ? restaurants as Restaurant[] : [];
 
