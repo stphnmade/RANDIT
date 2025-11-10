@@ -1,6 +1,6 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import type { Restaurant } from '../types';
+import { ShareIcon } from './Icons';
 
 interface ResultScreenProps {
   restaurant: Restaurant;
@@ -10,6 +10,7 @@ interface ResultScreenProps {
 
 const ResultScreen: React.FC<ResultScreenProps> = ({ restaurant, onReroll, onNewSearch }) => {
   const { name, rating, price_level, address, cuisine, maps_url, website_url } = restaurant;
+  const [copied, setCopied] = useState(false);
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -38,7 +39,33 @@ const ResultScreen: React.FC<ResultScreenProps> = ({ restaurant, onReroll, onNew
             </span>
         </span>
     );
-  }
+  };
+
+  const handleShare = async () => {
+      const shareData = {
+        title: `Let's go to ${name}!`,
+        text: `How about ${name}? It's located at ${address}.`,
+        url: maps_url,
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          console.error("Error sharing:", err);
+        }
+      } else {
+        // Fallback to copying the link
+        try {
+          await navigator.clipboard.writeText(maps_url);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+        } catch (err) {
+          console.error("Failed to copy link:", err);
+          alert("Failed to copy link to clipboard.");
+        }
+      }
+    };
 
   return (
     <div className="flex flex-col h-full p-4 text-gray-800 dark:text-white justify-between">
@@ -78,19 +105,25 @@ const ResultScreen: React.FC<ResultScreenProps> = ({ restaurant, onReroll, onNew
           </div>
         </div>
 
-        <div className="pt-4 grid grid-cols-2 gap-3">
+        <div className="pt-4 space-y-3">
           <a href={maps_url} target="_blank" rel="noopener noreferrer" className="w-full text-center px-4 py-3 font-bold text-white bg-blue-500 rounded-full shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center">
             Get Directions
           </a>
-          {website_url ? (
-            <a href={website_url} target="_blank" rel="noopener noreferrer" className="w-full text-center px-4 py-3 font-bold text-gray-800 dark:text-white bg-gray-200 dark:bg-gray-700 rounded-full shadow-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center">
-              Visit Website
-            </a>
-          ) : (
-            <button disabled className="w-full text-center px-4 py-3 font-bold text-gray-500 bg-gray-200 dark:bg-gray-700 rounded-full cursor-not-allowed">
-                No Website
+          <div className="grid grid-cols-2 gap-3">
+            {website_url ? (
+              <a href={website_url} target="_blank" rel="noopener noreferrer" className="w-full text-center px-4 py-3 font-bold text-gray-800 dark:text-white bg-gray-200 dark:bg-gray-700 rounded-full shadow-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center">
+                Visit Website
+              </a>
+            ) : (
+              <button disabled className="w-full text-center px-4 py-3 font-bold text-gray-500 bg-gray-200 dark:bg-gray-700 rounded-full cursor-not-allowed">
+                  No Website
+              </button>
+            )}
+             <button onClick={handleShare} className="w-full text-center px-4 py-3 font-bold text-gray-800 dark:text-white bg-gray-200 dark:bg-gray-700 rounded-full shadow-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center space-x-2">
+                <ShareIcon className="w-5 h-5" />
+                <span>{copied ? 'Copied!' : 'Share'}</span>
             </button>
-          )}
+          </div>
         </div>
       </div>
 

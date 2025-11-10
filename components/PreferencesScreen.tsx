@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import type { Preferences } from '../types';
 import { PAYMENT_OPTIONS, DIETARY_OPTIONS, CUISINE_OPTIONS } from '../constants';
+import Slider from './Slider';
 
 interface PreferencesScreenProps {
   currentPreferences: Preferences;
@@ -62,10 +63,14 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
         </FilterSection>
 
         <FilterSection title="Distance">
-          <input type="range" min="1" max="15" step="1" value={prefs.distance}
-            onChange={(e) => handleFilterChange('distance', parseInt(e.target.value))}
-            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
-          <div className="text-center font-bold text-lg mt-2">{prefs.distance} miles</div>
+          <Slider
+            min={1}
+            max={15}
+            step={0.05}
+            value={prefs.distance}
+            onChange={(val) => handleFilterChange('distance', val)}
+            labelFormat={(val) => `${val.toFixed(2)} miles`}
+          />
         </FilterSection>
 
         <FilterSection title="Price Range">
@@ -79,10 +84,14 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
         </FilterSection>
 
         <FilterSection title="Rating">
-          <input type="range" min="3" max="5" step="0.5" value={prefs.rating}
-            onChange={(e) => handleFilterChange('rating', parseFloat(e.target.value))}
-            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
-          <div className="text-center font-bold text-lg mt-2">{prefs.rating.toFixed(1)}+ stars</div>
+           <Slider
+            min={0}
+            max={5}
+            step={0.05}
+            value={prefs.rating}
+            onChange={(val) => handleFilterChange('rating', val)}
+            labelFormat={(val) => val === 0 ? 'Any Rating' : `${val.toFixed(2)}+ stars`}
+          />
         </FilterSection>
         
         <FilterSection title="Payment Type">

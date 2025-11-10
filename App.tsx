@@ -22,7 +22,7 @@ const App: React.FC = () => {
         cuisines: [],
         distance: 5,
         price: [],
-        rating: 3.5,
+        rating: 0,
         payment: [],
         dietary: [],
     };

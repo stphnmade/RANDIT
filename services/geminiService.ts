@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Preferences, Coordinates, Restaurant } from "../types";
 
@@ -21,7 +20,7 @@ const restaurantSchema = {
 function buildPrompt(coordinates: Coordinates, preferences: Preferences): string {
     let prompt = `Find restaurants near latitude ${coordinates.latitude} and longitude ${coordinates.longitude}.`;
     
-    prompt += ` The restaurants should be within a ${preferences.distance} mile radius.`;
+    prompt += ` All restaurant suggestions must be strictly within a ${preferences.distance} mile radius of the provided coordinates. This is a critical filter.`;
     
     if (preferences.cuisines.length > 0) {
         prompt += ` I'm interested in the following cuisines: ${preferences.cuisines.join(', ')}.`;
