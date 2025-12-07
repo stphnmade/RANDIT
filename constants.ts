@@ -5,6 +5,10 @@ export const CUISINE_OPTIONS = [
   'Thai', 'Vietnamese', 'Chinese', 'Japanese'
 ];
 
+export const MEAL_OPTIONS = [
+  'Breakfast', 'Brunch', 'Lunch', 'Dinner', 'Dessert', 'Coffee', 'Late Night'
+];
+
 export const PAYMENT_OPTIONS = ['Card', 'Cash', 'Contactless'];
 
 export const DIETARY_OPTIONS = [

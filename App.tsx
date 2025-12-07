@@ -20,6 +20,7 @@ const App: React.FC = () => {
     
     const initialPreferences: Preferences = {
         cuisines: [],
+        mealType: [],
         distance: 5,
         price: [],
         rating: 0,

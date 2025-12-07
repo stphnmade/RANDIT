@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import type { Preferences } from '../types';
-import { PAYMENT_OPTIONS, DIETARY_OPTIONS, CUISINE_OPTIONS } from '../constants';
+import { PAYMENT_OPTIONS, DIETARY_OPTIONS, CUISINE_OPTIONS, MEAL_OPTIONS } from '../constants';
 import Slider from './Slider';
 
 interface PreferencesScreenProps {
@@ -23,8 +23,8 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
     setPrefs(p => ({ ...p, [key]: value }));
   };
   
-  const handleMultiSelect = (key: 'price' | 'payment' | 'dietary', value: string | number) => {
-    const currentValues = prefs[key] as (string | number)[];
+  const handleMultiSelect = (key: 'price' | 'payment' | 'dietary' | 'mealType', value: string | number) => {
+    const currentValues = (prefs[key] || []) as (string | number)[];
     const newValues = currentValues.includes(value)
       ? currentValues.filter(v => v !== value)
       : [...currentValues, value];
@@ -60,6 +60,16 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
               <button onClick={() => handleFilterChange('cuisines', CUISINE_OPTIONS)} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm">Select All</button>
               <button onClick={() => handleFilterChange('cuisines', [])} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm">Clear All</button>
           </div>
+        </FilterSection>
+
+        <FilterSection title="Meal Type">
+            <div className="flex flex-wrap gap-2">
+                {MEAL_OPTIONS.map(m => (
+                    <button key={m} onClick={() => handleMultiSelect('mealType', m)} className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${prefs.mealType?.includes(m) ? 'bg-purple-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}`}>
+                        {m}
+                    </button>
+                ))}
+            </div>
         </FilterSection>
 
         <FilterSection title="Distance">
