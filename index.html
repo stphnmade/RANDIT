@@ -17,8 +17,18 @@
 }
 </script>
   <style>
+    :root {
+      --accent-color: #000000;
+    }
+    .dark {
+      --accent-color: #ffffff;
+    }
     body {
       transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+      background-color: #F7FCFD;
+    }
+    body.dark {
+      background-color: #000000;
     }
     @keyframes slot-spin-in {
       from {

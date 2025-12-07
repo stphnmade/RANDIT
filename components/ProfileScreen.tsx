@@ -22,8 +22,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentTheme, onThemeChan
       </div>
 
       <div className="flex-grow overflow-y-auto">
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg mb-4 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-xl font-semibold mb-3 text-purple-500 dark:text-purple-400">Theme</h3>
+        <div className="bg-white dark:bg-black p-4 rounded-xl mb-4 border border-gray-200 dark:border-gray-800">
+          <h3 className="text-xl font-bold mb-3 text-black dark:text-white">Theme</h3>
           <div className="grid grid-cols-3 gap-2">
             {themes.map(({ name, icon }) => (
               <button
@@ -31,25 +31,25 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ currentTheme, onThemeChan
                 onClick={() => onThemeChange(name)}
                 className={`flex flex-col items-center p-3 rounded-lg capitalize transition-colors ${
                   currentTheme === name
-                    ? 'bg-purple-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-black text-white dark:bg-white dark:text-black'
+                    : 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
                 }`}
               >
                 {icon}
-                <span className="text-sm font-medium mt-1">{name}</span>
+                <span className="text-sm font-bold mt-1">{name}</span>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-            <h3 className="text-xl font-semibold mb-3 text-purple-500 dark:text-purple-400">Account</h3>
+        <div className="bg-white dark:bg-black p-4 rounded-xl border border-gray-200 dark:border-gray-800">
+            <h3 className="text-xl font-bold mb-3 text-black dark:text-white">Account</h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                 Sign in with Google to sync your preferences across devices. (Coming soon!)
             </p>
             <button
                 disabled
-                className="w-full px-4 py-2 font-bold text-white bg-gray-400 dark:bg-gray-600 rounded-lg cursor-not-allowed"
+                className="w-full px-4 py-2 font-bold text-gray-500 bg-gray-200 dark:bg-gray-800 rounded-lg cursor-not-allowed"
             >
                 Sign In with Google
             </button>

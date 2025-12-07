@@ -32,8 +32,8 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
   };
 
   const FilterSection: React.FC<{title: string; children: React.ReactNode}> = ({ title, children }) => (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg mb-4 border border-gray-200 dark:border-gray-700">
-      <h3 className="text-xl font-semibold mb-3 text-purple-500 dark:text-purple-400">{title}</h3>
+    <div className="bg-white dark:bg-black p-4 rounded-xl mb-4 border border-gray-200 dark:border-gray-800">
+      <h3 className="text-xl font-bold mb-3 text-black dark:text-white">{title}</h3>
       {children}
     </div>
   );
@@ -41,8 +41,8 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
   return (
     <div className="flex flex-col h-full p-4 text-gray-800 dark:text-white">
       <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold">Your Preferences</h2>
-        <p className="text-gray-500 dark:text-gray-400">We'll remember these for next time.</p>
+        <h2 className="text-3xl font-bold">Preferences</h2>
+        <p className="text-gray-500 dark:text-gray-400">We'll remember these.</p>
       </div>
 
       <div className="flex-grow overflow-y-auto pb-4 pr-1">
@@ -50,22 +50,24 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {CUISINE_OPTIONS.map((cuisine) => (
               <button key={cuisine} onClick={() => handleCuisineToggle(cuisine)}
-                className={`p-3 rounded-lg font-semibold text-center transition-colors text-sm ${
-                  prefs.cuisines.includes(cuisine) ? 'bg-purple-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}`}>
+                className={`p-3 rounded-lg font-bold text-center transition-colors text-sm ${
+                  prefs.cuisines.includes(cuisine) 
+                  ? 'bg-black text-white dark:bg-white dark:text-black' 
+                  : 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'}`}>
                 {cuisine}
               </button>
             ))}
           </div>
           <div className="grid grid-cols-2 gap-2 mt-3">
-              <button onClick={() => handleFilterChange('cuisines', CUISINE_OPTIONS)} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm">Select All</button>
-              <button onClick={() => handleFilterChange('cuisines', [])} className="px-4 py-2 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm">Clear All</button>
+              <button onClick={() => handleFilterChange('cuisines', CUISINE_OPTIONS)} className="px-4 py-2 bg-gray-200 dark:bg-gray-800 rounded-md hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors text-sm font-bold">Select All</button>
+              <button onClick={() => handleFilterChange('cuisines', [])} className="px-4 py-2 bg-gray-200 dark:bg-gray-800 rounded-md hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors text-sm font-bold">Clear All</button>
           </div>
         </FilterSection>
 
         <FilterSection title="Meal Type">
             <div className="flex flex-wrap gap-2">
                 {MEAL_OPTIONS.map(m => (
-                    <button key={m} onClick={() => handleMultiSelect('mealType', m)} className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${prefs.mealType?.includes(m) ? 'bg-purple-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}`}>
+                    <button key={m} onClick={() => handleMultiSelect('mealType', m)} className={`px-3 py-1 rounded-full text-sm font-bold transition-colors ${prefs.mealType?.includes(m) ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'}`}>
                         {m}
                     </button>
                 ))}
@@ -86,7 +88,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
         <FilterSection title="Price Range">
             <div className="grid grid-cols-4 gap-2">
                 {[1, 2, 3, 4].map(p => (
-                    <button key={p} onClick={() => handleMultiSelect('price', p)} className={`p-2 rounded-md font-bold transition-colors ${prefs.price.includes(p) ? 'bg-purple-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}`}>
+                    <button key={p} onClick={() => handleMultiSelect('price', p)} className={`p-2 rounded-md font-bold transition-colors ${prefs.price.includes(p) ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'}`}>
                         {'$'.repeat(p)}
                     </button>
                 ))}
@@ -107,7 +109,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
         <FilterSection title="Payment Type">
             <div className="flex flex-wrap gap-2">
                 {PAYMENT_OPTIONS.map(p => (
-                    <button key={p} onClick={() => handleMultiSelect('payment', p)} className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${prefs.payment.includes(p) ? 'bg-purple-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}`}>
+                    <button key={p} onClick={() => handleMultiSelect('payment', p)} className={`px-3 py-1 rounded-full text-sm font-bold transition-colors ${prefs.payment.includes(p) ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'}`}>
                         {p}
                     </button>
                 ))}
@@ -117,7 +119,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
         <FilterSection title="Dietary Options">
             <div className="flex flex-wrap gap-2">
                 {DIETARY_OPTIONS.map(d => (
-                    <button key={d} onClick={() => handleMultiSelect('dietary', d)} className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${prefs.dietary.includes(d) ? 'bg-purple-500 text-white' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}`}>
+                    <button key={d} onClick={() => handleMultiSelect('dietary', d)} className={`px-3 py-1 rounded-full text-sm font-bold transition-colors ${prefs.dietary.includes(d) ? 'bg-black text-white dark:bg-white dark:text-black' : 'bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'}`}>
                         {d}
                     </button>
                 ))}
@@ -128,7 +130,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ currentPreference
       <div className="mt-auto pt-4">
         <button
           onClick={() => onSave(prefs)}
-          className="w-full px-6 py-4 text-lg font-bold text-white bg-gradient-to-r from-purple-500 to-teal-500 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300"
+          className="w-full px-6 py-4 text-lg font-bold text-white bg-black dark:text-black dark:bg-white rounded-full shadow-none hover:bg-gray-900 dark:hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-black/50 dark:focus:ring-white/50"
         >
           Save & Close
         </button>

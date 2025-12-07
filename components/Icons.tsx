@@ -1,17 +1,12 @@
+
 import React from 'react';
 
 type IconProps = React.SVGProps<SVGSVGElement>;
 
 export const Logo: React.FC<IconProps> = (props) => (
   <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-    <circle cx="50" cy="50" r="48" stroke="url(#logo-gradient)" strokeWidth="4"/>
-    <path d="M35 35 L65 65 M65 35 L35 65" stroke="url(#logo-gradient)" strokeWidth="4" strokeLinecap="round"/>
-    <defs>
-      <linearGradient id="logo-gradient" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#F472B6"/>
-        <stop offset="1" stopColor="#8B5CF6"/>
-      </linearGradient>
-    </defs>
+    <circle cx="50" cy="50" r="48" stroke="currentColor" strokeWidth="4"/>
+    <path d="M35 35 L65 65 M65 35 L35 65" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
   </svg>
 );
 
@@ -80,9 +75,9 @@ export const BurgerIcon: React.FC<IconProps> = (props) => (
 export const SushiIcon: React.FC<IconProps> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" {...props}>
     <path d="M9 12a3 3 0 0 1-3-3v0a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v0a3 3 0 0 1-3 3Z" />
-    <path d="M9 18a3 3 0 0 1-3-3v0a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v0a3 3 0 0 1-3 3Z" />
-    <path d="M15 12a3 3 0 0 1-3-3v0a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v0a3 3 0 0 1-3 3Z" />
-    <path d="M15 18a3 3 0 0 1-3-3v0a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v0a3 3 0 0 1-3 3Z" />
+    <path d="M9 18a3 3 0 0 1-3-3v0a3 3 0 0 1 3-3v0a3 3 0 0 1 3-3v0a3 3 0 0 1-3 3Z" />
+    <path d="M15 12a3 3 0 0 1-3-3v0a3 3 0 0 1 3-3v0a3 3 0 0 1-3 3Z" />
+    <path d="M15 18a3 3 0 0 1-3-3v0a3 3 0 0 1 3-3v0a3 3 0 0 1-3 3Z" />
     <path d="M3 3v18h18" />
   </svg>
 );

@@ -136,12 +136,12 @@ const App: React.FC = () => {
         switch (randItState) {
             case 'idle':
                 return (
-                    <div className="flex flex-col items-center justify-center h-full text-center p-8 text-gray-800 dark:text-white">
-                        <h1 className="text-5xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-teal-500 dark:from-purple-400 dark:to-teal-300">
+                    <div className="flex flex-col items-center justify-center h-full text-center p-8 text-black dark:text-white">
+                        <h1 className="text-5xl font-bold mb-2 text-black dark:text-white">
                           randIT
                         </h1>
                         <p className="text-lg text-gray-600 dark:text-gray-300 mb-12">Ready to roll?</p>
-                        <button onClick={handleFindPlaces} className="w-48 h-16 flex items-center justify-center text-xl font-bold text-white bg-gradient-to-r from-purple-500 to-teal-500 rounded-2xl shadow-lg transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300">
+                        <button onClick={handleFindPlaces} className="w-48 h-16 flex items-center justify-center text-xl font-bold text-white bg-black dark:text-black dark:bg-white rounded-2xl shadow-none transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-black/50 dark:focus:ring-white/50">
                            <ShuffleIcon className="w-6 h-6 mr-2" /> Go!
                         </button>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-8">
@@ -181,8 +181,8 @@ const App: React.FC = () => {
     };
     
     return (
-        <main className="h-screen w-screen bg-slate-50 dark:bg-[#0F0F0F] font-sans">
-          <div className="relative max-w-md mx-auto h-full bg-slate-50 dark:bg-gray-900 shadow-2xl overflow-hidden">
+        <main className="h-screen w-screen bg-[#F7FCFD] dark:bg-black font-sans transition-colors duration-300">
+          <div className="relative max-w-md mx-auto h-full bg-[#F7FCFD] dark:bg-black shadow-2xl overflow-hidden border-x border-gray-100 dark:border-gray-900">
             <div className="h-full overflow-y-auto pb-16">
               {renderMainContent()}
             </div>

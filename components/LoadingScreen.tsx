@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Restaurant } from '../types';
 import { PizzaIcon, BurgerIcon, SushiIcon, TacoIcon, NoodlesIcon, FishIcon, CurryIcon, SaladIcon, DonutIcon } from './Icons';
@@ -8,9 +9,9 @@ interface LoadingScreenProps {
 }
 
 const ProgressBar = ({ progress }: { progress: number }) => (
-    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+    <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2.5">
         <div 
-            className="bg-gradient-to-r from-purple-500 to-teal-500 h-2.5 rounded-full transition-all duration-300 ease-linear"
+            className="bg-black dark:bg-white h-2.5 rounded-full transition-all duration-300 ease-linear"
             style={{ width: `${progress}%` }}
         ></div>
     </div>
@@ -39,8 +40,8 @@ const FoodIconGrid: React.FC = () => {
                     key={index} 
                     className={`flex items-center justify-center p-2 rounded-lg transition-all duration-300 ${
                         activeIndex === index 
-                        ? 'bg-teal-400/20 text-teal-300 scale-110' 
-                        : 'bg-gray-700/50 text-gray-500'
+                        ? 'bg-black text-white dark:bg-white dark:text-black scale-110' 
+                        : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600'
                     }`}
                 >
                     <Icon className="w-8 h-8" />
@@ -52,10 +53,10 @@ const FoodIconGrid: React.FC = () => {
 
 const SlotReel: React.FC<{ name: string }> = ({ name }) => {
     return (
-        <div className="h-20 w-full overflow-hidden p-4 text-center bg-gray-800/50 rounded-lg backdrop-blur-sm flex items-center justify-center">
+        <div className="h-20 w-full overflow-hidden p-4 text-center bg-white dark:bg-black border border-black dark:border-white rounded-xl flex items-center justify-center">
              <div 
                 key={name}
-                className="text-2xl font-bold truncate text-white animate-slot-spin-in"
+                className="text-2xl font-bold truncate text-black dark:text-white animate-slot-spin-in"
              >
                 {name || '...'}
             </div>
@@ -132,20 +133,20 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ restaurants, messages }) 
   // Initial loading state (before restaurants are fetched)
   if (!hasRestaurants) {
     return (
-        <div className="flex flex-col items-center justify-center h-full text-center p-4 text-white">
+        <div className="flex flex-col items-center justify-center h-full text-center p-4 text-gray-800 dark:text-white">
             <FoodIconGrid />
-            <h2 className="text-xl font-semibold animate-pulse mt-8">{message}</h2>
+            <h2 className="text-xl font-bold animate-pulse mt-8 text-black dark:text-white">{message}</h2>
         </div>
     );
   }
 
   // Polling state (after restaurants are fetched)
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center p-8 text-white">
+    <div className="flex flex-col items-center justify-center h-full text-center p-8 text-gray-800 dark:text-white">
       <div className="w-full max-w-sm space-y-6">
         <SlotReel name={displayedName} />
         <ProgressBar progress={progress} />
-        <h2 className="text-xl font-semibold">{message}</h2>
+        <h2 className="text-xl font-bold text-black dark:text-white">{message}</h2>
       </div>
     </div>
   );
